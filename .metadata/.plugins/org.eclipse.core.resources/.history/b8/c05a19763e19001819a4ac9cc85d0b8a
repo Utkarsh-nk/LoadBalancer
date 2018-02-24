@@ -1,0 +1,40 @@
+package com.loadbalancer;
+
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.PriorityQueue;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Comparator;
+
+public class PriorityMap<k,v> {
+	
+	private HashMap<k,v> map = new HashMap<k,v>();
+	private PriorityQueue<Entry<k,v>> priorities;
+	
+	public PriorityMap(Comparator<Entry<k,v>> cmp){
+		priorities = new PriorityQueue<>(cmp);
+	}
+	
+	public PriorityMap(){
+		priorities = new PriorityQueue<>();
+	}
+	
+	public synchronized void put(k key,v value){
+		/*Entry<k,v> entry = new SimpleEntry<k,v>(key,value);
+		priorities.add(entry);*/
+		map.put(key, value);
+		priorities.clear();
+		priorities.addAll(map.entrySet());
+	}
+	
+	public synchronized v get(k key){
+		return map.get(key);
+	}
+	
+	public synchronized Entry<k,v>  peek(){
+		return priorities.peek();
+	}
+	
+	
+
+}

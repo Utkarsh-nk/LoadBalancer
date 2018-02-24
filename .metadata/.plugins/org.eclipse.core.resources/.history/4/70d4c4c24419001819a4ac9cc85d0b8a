@@ -1,0 +1,30 @@
+package tests;
+
+import utility.LoadBalancerPriorityMap;
+
+public class TestLoadBalancer {
+	public static void main(String[] args){
+		LoadBalancerPriorityMap envs = LoadBalancerPriorityMap.getLoadBalancer(maxSessions);
+		String e1 = envs.getEnvUrl();
+		System.out.println(e1);
+		String e2 = envs.getEnvUrl();
+		System.out.println(e2);
+		String e3 = envs.getEnvUrl();
+		System.out.println(e3);
+		String e4 = envs.getEnvUrl();
+		System.out.println(e4);
+		String e5 = envs.getEnvUrl();
+		System.out.println(e5);
+		String e6 = envs.getEnvUrl();
+		System.out.println(e6);
+		String e7 = envs.getEnvUrl();
+		System.out.println(e7);
+		String e8 = envs.getEnvUrl();
+		System.out.println(e8);
+		String e9 = envs.getEnvUrl();
+		System.out.println(e1);
+		envs.releaseEnv(e9);
+		e1 = envs.getEnvUrl();
+		System.out.println(e1);
+	}
+}

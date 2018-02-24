@@ -1,0 +1,77 @@
+package utility;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+
+import datastructures.map.EntryComparator;
+import datastructures.map.PriorityMap;
+
+
+public final class Environments {
+	private static Environments envs;
+	
+	PriorityMap<String,Integer> envMappings;
+	
+	private Environments(int maxSessions){
+		String envsString="a,b,c,d";
+		Comparator cmp = new EntryComparator<String,Integer>(true);
+		envMappings = new PriorityMap<String,Integer>(cmp);
+		Arrays.asList(envsString.split(",")).forEach(f-> envMappings.put(f, 0));
+	}
+	
+	public static Environments getEnvironmentsObject(int maxSessions){
+		if(envs==null){
+			return new Environments(maxSessions);
+		}else{
+			return envs;
+		}
+	}
+	
+	public String getEnvUrl(){
+		Entry<String,Integer> leastLoadEnv = envMappings.peek();
+		String url=leastLoadEnv.getKey();
+		int load=leastLoadEnv.getValue();
+		envMappings.put(url,load+1);
+		return url;
+	}
+	
+	public void releaseEnv(String env){
+		int load = envMappings.get(env);
+		envMappings.put(env, load-1);
+	}
+	
+	 private  List<Entry<String, Integer>> sortByComparator(Map<String, Integer> unsortMap, final boolean order)
+	    {
+
+	        List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(unsortMap.entrySet());
+
+	        // Sorting the list based on values
+	        Collections.sort(list, new Comparator<Entry<String, Integer>>()
+	        {
+	            public int compare(Entry<String, Integer> o1,
+	                    Entry<String, Integer> o2)
+	            {
+	                if (order)
+	                {
+	                    return o1.getValue().compareTo(o2.getValue());
+	                }
+	                else
+	                {
+	                    return o2.getValue().compareTo(o1.getValue());
+
+	                }
+	            }
+	        });
+
+	        return list;
+	    }
+
+}
