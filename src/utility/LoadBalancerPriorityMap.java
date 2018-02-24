@@ -14,63 +14,55 @@ import datastructures.map.EntryComparator;
 import datastructures.map.PriorityMap;
 
 
-public final class LoadBalancerPriorityMap {
-	private static LoadBalancerPriorityMap envs;
+public final class LoadBalancerPriorityMap<k> implements LoadBalancer<k>{
+	private static LoadBalancer loadBalObject;
 	
-	PriorityMap<String,Integer> envMappings;
+	PriorityMap<k,Integer> loadMappings;
 	
-	private LoadBalancerPriorityMap(int maxSessions){
-		String envsString="a,b,c,d";
+	int maxLoad;
+	
+	private LoadBalancerPriorityMap(int maxLoad){
+		this.maxLoad=maxLoad;
 		Comparator cmp = new EntryComparator<String,Integer>(true);
-		envMappings = new PriorityMap<String,Integer>(cmp);
-		Arrays.asList(envsString.split(",")).forEach(f-> envMappings.put(f, 0));
+		loadMappings = new PriorityMap<k,Integer>(cmp);
 	}
 	
-	public static LoadBalancerPriorityMap getLoadBalancer(int maxSessions){
-		if(envs==null){
-			return new LoadBalancerPriorityMap(maxSessions);
+	public static LoadBalancer getLoadBalancer(int maxLoad){
+		if(loadBalObject==null){
+			loadBalObject=new LoadBalancerPriorityMap(maxLoad);
+			return loadBalObject;
 		}else{
-			return envs;
+			return loadBalObject;
 		}
 	}
 	
-	public String getLeastLoadItem(){
-		Entry<String,Integer> leastLoadEnv = envMappings.peek();
-		String url=leastLoadEnv.getKey();
-		int load=leastLoadEnv.getValue();
-		envMappings.put(url,load+1);
-		return url;
+	@Override
+	public void addInitialLoad(k key , int load){
+		loadMappings.put(key, load);
 	}
 	
-	public void reduceLoad(String env){
-		int load = envMappings.get(env);
-		envMappings.put(env, load-1);
+	@Override
+	public void reduceLoad(k env , int reduceAmt){
+		int load = loadMappings.get(env);
+		loadMappings.put(env, load-reduceAmt);
 	}
-	
-	 private  List<Entry<String, Integer>> sortByComparator(Map<String, Integer> unsortMap, final boolean order)
-	    {
 
-	        List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(unsortMap.entrySet());
 
-	        // Sorting the list based on values
-	        Collections.sort(list, new Comparator<Entry<String, Integer>>()
-	        {
-	            public int compare(Entry<String, Integer> o1,
-	                    Entry<String, Integer> o2)
-	            {
-	                if (order)
-	                {
-	                    return o1.getValue().compareTo(o2.getValue());
-	                }
-	                else
-	                {
-	                    return o2.getValue().compareTo(o1.getValue());
+	@Override
+	public k addLoad(int load) {
+		Entry<k,Integer> leastLoadEnv = loadMappings.peek();
+		k key=leastLoadEnv.getKey();
+		int keyload=leastLoadEnv.getValue();
+		loadMappings.put(key,keyload+load);
+		return key;
+		//
+		
+	}
 
-	                }
-	            }
-	        });
-
-	        return list;
-	    }
+	@Override
+	public void addInitialLoads(Iterable<k> keys, int load) {
+		keys.forEach(f -> loadMappings.put(f, load));
+		
+	}
 
 }
